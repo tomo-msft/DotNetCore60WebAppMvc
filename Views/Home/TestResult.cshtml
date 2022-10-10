@@ -1,0 +1,7 @@
+﻿<h1>@ViewBag.Title</h1>
+
+@if (ViewBag.Result != null) {
+    @foreach (KeyValuePair<string, string> kv in ViewBag.Result) {
+        @:@kv.Key : @kv.Value<br>
+    }
+}
