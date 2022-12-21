@@ -63,6 +63,13 @@ namespace SampleApp.Controllers
             return View("TestResult");
         }
 
+        public IActionResult MemoryTest([FromQuery(Name = "size")] int size = 1000, [FromQuery(Name = "sleep")] int sleep = 10)
+        {
+            ViewBag.Title = "MemoryTest";
+            ViewBag.Result = MemoryTestImpl(size, sleep);
+            return View("TestResult");
+        }
+
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
@@ -147,6 +154,27 @@ namespace SampleApp.Controllers
             return new Dictionary<string, string>()
             {
                 {"Loop",loop.ToString() },
+                {"Elapsed", elapsed.ToString()}
+            };
+        }
+
+        // size: MB, sleep: second
+        protected Dictionary<string, string> MemoryTestImpl(int size, int sleep)
+        {
+            var start = DateTime.Now;
+            var array = new Byte[size*1024*1024];
+            for(int i=0; i<array.Length; i++)
+            {
+                array[i] = 0x01;
+            }
+            Thread.Sleep(sleep * 1000);
+
+            var end = DateTime.Now;
+            var elapsed = end.Subtract(start);
+
+            return new Dictionary<string, string>()
+            {
+                {"Size",size.ToString() },
                 {"Elapsed", elapsed.ToString()}
             };
         }
