@@ -130,6 +130,7 @@ namespace SampleApp.Controllers
             _logger.LogWarning($"{LogHeader} LogTest LogWarning {message} {current}");
             _logger.LogError($"{LogHeader} LogTest LogError {message} {current}");
             _logger.LogCritical($"{LogHeader} LogTest LogCritical {message} {current}");
+            _logger.LogError(new Exception("MyTestException"), $"{LogHeader} LogTest LogError with Exception {message} {current}");
 
             return new Dictionary<string, string>()
             {
