@@ -7,6 +7,9 @@ using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Threading.Tasks;
+using System.Drawing;
+using Microsoft.Data.SqlClient;
+using System.Data;
 
 namespace SampleApp.Controllers
 {
@@ -67,6 +70,13 @@ namespace SampleApp.Controllers
         {
             ViewBag.Title = "MemoryTest";
             ViewBag.Result = MemoryTestImpl(size, sleep);
+            return View("TestResult");
+        }
+
+        public IActionResult SQLTest()
+        {
+            ViewBag.Title = "SQLTest";
+            ViewBag.Result = SQLTestImpl();
             return View("TestResult");
         }
 
@@ -179,5 +189,45 @@ namespace SampleApp.Controllers
                 {"Elapsed", elapsed.ToString()}
             };
         }
+
+        protected Dictionary<string, string> SQLTestImpl()
+        {
+            var sql = "select top 3 * from [SalesLT].[Product]";
+            var result = "";
+            try
+            {
+
+                var constr = Environment.GetEnvironmentVariable("DB_CONN_STR");
+                SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder();           
+
+                using (SqlConnection connection = new SqlConnection(constr))
+                {
+                    using (SqlCommand command = new SqlCommand(sql, connection))
+                    {
+                        connection.Open();
+                        using (SqlDataReader reader = command.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                _logger.LogInformation($"SQL Result: {reader.GetValue(0)}, {reader.GetValue(1)}, {reader.GetValue(2)}, {reader.GetValue(3)}");
+                                result += $"{reader.GetValue(0)}, {reader.GetValue(1)}, {reader.GetValue(2)}, {reader.GetValue(3)} <br>";
+                            }
+                        }
+                    }
+                }
+            }
+            catch (SqlException e)
+            {
+                _logger.LogError($"{LogHeader} LogTest LogError {e.ToString}", e);
+            }
+
+            return new Dictionary<string, string>()
+            {
+                {"Query", sql },
+                {"Result", result }
+            };
+        }
+
+
     }
 }
